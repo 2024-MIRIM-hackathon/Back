@@ -78,6 +78,12 @@ app.get('/bookmarks', (req,res)=>{
     res.status(200).json(bookmarks)
 })
 
+function getQuize() {
+    const apiUrl = "http://172.16.21.53:7099/quize"
+    fetch(apiUrl)
+    .then(response => response.json())
+}
+
 // 퀴즈 문제와 선택지 4개를 반환
 app.get('/quize', (req, res) => {
     // TODO : 랜덤으로 특정 단어를 지정하고 그 뜻을 문제로 냄

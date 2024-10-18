@@ -1,8 +1,11 @@
 const express = require('express');
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 7099;
+const cors = require('cors');
+
 
 app.use(express.json());
+app.use(cors())
 
 // 기본 라우트 설정
 app.get('/', (req, res) => {
@@ -66,6 +69,7 @@ app.post('/bookmarks', (req,res)=>{
 
     const newBookmark = {id: bookmarks.length + 1, word}
     bookmarks.push(newBookmark)
+    console.log(bookmarks)
     res.status(201).json(newBookmark)
 })
 
@@ -111,7 +115,8 @@ app.get('/quize', (req, res) => {
 
     res.json({
         question: question, // 문제
-        options: shuffledOptions //선택지
+        options: shuffledOptions, //선택지
+        result: word //정답
     });
 
 });

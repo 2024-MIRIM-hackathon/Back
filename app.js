@@ -17,6 +17,24 @@ app.get('/myword', (req, res) => {
     res.json(words);
 });
 
+// 단어의 뜻과 예문을 반환
+app.get('/myword/:word', (req, res) => {
+    const { word } = req.params;
+    console.log(`Requested word: ${word}`);
+    const wordInfo = w[word];
+    console.log(`Word info: ${JSON.stringify(wordInfo)}`);
+
+    if (wordInfo) {
+        res.json({
+            word: word,                // 단어
+            meaning: wordInfo.meaning, // 뜻
+            example: wordInfo.example  // 예문
+        });
+    } else {
+        res.status(404).json({ error: '단어를 찾을 수 없습니다.' });
+    }
+});
+
 // 서버 시작
 app.listen(PORT, () => {
     console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);

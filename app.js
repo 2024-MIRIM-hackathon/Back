@@ -9,6 +9,18 @@ app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
+const w = require('./ages.json')
+
+app.get('/age/:age', (req, res)=>{
+  const{age} = req.params
+  const word = w.words[`${age}대`]
+
+  if(word){
+    console.log(`나이대: ${age}대, 단어: ${word}`)
+    res.json({'age':`${age}대`, 'word':word})
+  }
+})
+
 const w = require('./word.json');
 
 // 모든 단어 반환

@@ -73,6 +73,50 @@ app.post('/bookmarks', (req,res)=>{
 app.get('/bookmarks', (req,res)=>{
     res.status(200).json(bookmarks)
 })
+
+// 퀴즈 문제와 선택지 4개를 반환
+app.get('/quize', (req, res) => {
+    // TODO : 랜덤으로 특정 단어를 지정하고 그 뜻을 문제로 냄
+    const words = Object.keys(wordData);
+    const randomIndex = Math.floor(Math.random() * words.length);
+    const word = words[randomIndex];    // 랜덤으로 정답 단어 지정
+    const question = wordData[word].meaning;
+
+    // 정답 제외한 단어 배열
+    const remainwords = words.filter(wrd => wrd !== word);
+
+    // 정답 제외 랜덤으로 단어 3개 선택
+    const randomOptions = [];
+    while (randomOptions.length < 3) {
+        const randIndex = Math.floor(Math.random() * remainwords.length);
+        const randomWord = remainwords[randIndex];
+
+        // 이미 선택된 단어가 아닌 경우에만 추가
+        if (!randomOptions.includes(randomWord)) {
+            randomOptions.push(randomWord);
+        }
+    }
+
+    // 선택지 배열
+    const options = [];
+    randomOptions.forEach(wrd => {
+        options.push(wrd);
+    });
+
+    options.push(word); // 배열에 정답을 포함
+
+    // 선택지를 섞음
+    const shuffle = (array) => array.sort(() => Math.random() - 0.5);
+    const shuffledOptions = shuffle(options);   // 섞인 선택지
+
+    res.json({
+        question: question, // 문제
+        options: shuffledOptions //선택지
+    });
+
+});
+
+
 // 서버 시작
 app.listen(PORT, () => {
     console.log(`서버가 http://localhost:${PORT} 에서 실행 중입니다.`);

@@ -111,7 +111,8 @@ app.get('/quize', (req, res) => {
 
     res.json({
         question: question, // 문제
-        options: shuffledOptions //선택지
+        options: shuffledOptions, //선택지
+        result : word   // 정답
     });
 
 });

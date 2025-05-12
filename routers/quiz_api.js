@@ -1,16 +1,19 @@
 /* 퀴즈 api */
 const express = require('express');
-const Word = require('../word.json');
+var db = require('../config/db');
 
 const router = express.Router();
 
-// 퀴즈 문제와 선택지 4개를 반환
-router.get('/randomquize', (req, res) => {
-    // TODO : 랜덤으로 특정 단어를 지정하고 그 뜻을 문제로 냄
-    const words = Object.keys(Word);
+// 배웠던 단어 퀴즈
+router.get('/randomquize', async (req, res) => {
+    // DB에서 데이터 가져오기
+    const [words] = await db.query(
+        'SELECT w.id, w.word, w.meaning, w.example, ul.thing FROM words w, user_learned ul WHERE (ul.thing = w.word)');
+    console.log("DB 데이터 : ", words);     // 데이터 구조 확인
+
     const randomIndex = Math.floor(Math.random() * words.length);
-    const word = words[randomIndex];    // 랜덤으로 정답 단어 지정
-    const question = Word[word].meaning;
+    const word = words[randomIndex];        // 정답 단어
+    const question = words[randomIndex].meaning;
 
     // 정답 제외한 단어 배열
     const remainwords = words.filter(wrd => wrd !== word);
@@ -42,7 +45,7 @@ router.get('/randomquize', (req, res) => {
     res.json({
         question: question, // 문제
         options: shuffledOptions, //선택지
-        result : word   // 정답
+        correct_answer : word.word   // 정답
     });
 
 });

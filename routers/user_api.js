@@ -138,4 +138,20 @@ router.patch('/update', async (req, res) => {
     }
 });
 
+// 회원 탈퇴
+router.delete('/delete', async (req, res) => {
+    const user_id = req.session.user?.id;
+    console.log(user_id);
+
+    try{
+        await db.query('DELETE FROM users WHERE id = ?', [user_id]);
+        res.send('회원 탈퇴 되었습니다!');
+        req.session.destroy;
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({err: 'Database error'});
+    }
+});
+
 module.exports = router;

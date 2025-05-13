@@ -1,5 +1,6 @@
 const express = require('express');
 const session = require('express-session');
+const cors = require('cors');
 const app = express();
 
 // 라우터 설정
@@ -8,6 +9,9 @@ const Quize = require('./routers/quiz_api');
 const User = require('./routers/user_api');
 
 app.set('port', process.env.PORT || 5000);
+app.use(cors({
+    credentials: true
+}));
 app.use(session({
     secret: process.env.COOKIE_SECRE,
     resave: false,

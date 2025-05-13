@@ -68,10 +68,34 @@ router.post('/logout', (req, res) => {
             return res.status(500).send("로그아웃 실패");
         }
         res.clearCookie('connect.sid');
-        return res.send("로그아웃 성공!")
+        return res.send("로그아웃 성공!");
     })
 });
 
-//
+// 회원 정보 조회
+router.get('/info', async (req, res) => {
+
+    const user_id = req.session.user?.id;
+    console.log(user_id);
+
+    try {
+        const [user] = await db.query(
+            'SELECT nickname, email, age, join_date FROM users WHERE users.id = ?', [user_id]
+        );
+
+        console.log(user);
+
+        if(!user){
+            return res.status(404).send("사용자 정보를 찾을 수 없습니다.");
+        }
+
+        res.send(user[0]);
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({err: 'Database error'});
+    }
+
+});
 
 module.exports = router;

@@ -7,15 +7,24 @@ const router = express.Router();
 // 회원가입
 router.post('/join', async (req, res) => {
     try {
-            const { nickname, email, password, age} = req.body;
+        const { nickname, email, password, age} = req.body;
 
-            if (!nickname || !email || !password || !age) {
-                return res.status(400).send({err: 'nickname, email, password and age are reqiored.'});
-            }
-            const sql = 'INSERT INTO users (nickname, email, password, age, join_date) VALUES (?, ?, ?, ?, CURDATE())';
-            await db.query(sql, [nickname, email, password, age]);
-            console.log(" 회원 가입 성공!");
-            return res.send("회원 가입 성공!");
+        const [users] = await db.query('SELECT nickname, email FROM users');
+
+        if (!nickname || !email || !password || !age) {
+            return res.status(400).send({err: 'nickname, email, password, age 중 입력되지 않은 값이 있습니다.'});
+        }
+        else if(users.find(u => u.nickname === nickname)) {
+            return res.status(400).send({err: '이미 사용중인 nickname 입니다.'});
+        }
+        else if(users.find(u => u.email === email)) {
+            return res.status(400).send({err: '이미 회원가입 된 eamil 입니다.'});
+        }
+
+        const sql = 'INSERT INTO users (nickname, email, password, age, join_date) VALUES (?, ?, ?, ?, CURDATE())';
+        await db.query(sql, [nickname, email, password, age]);
+        return res.send("회원 가입 성공!");
+
     } catch (err) {
         console.error(err);
         res.status(500).send({err: 'Database error'});
@@ -32,7 +41,6 @@ router.post('/login', async (req, res) => {
         }
         const [user_check] = await db.query(
             'SELECT id, nickname, password FROM users');
-            console.log("DB 데이터 : ", user_check);     // 데이터 구조 확인
 
         const user = user_check.find(u => u.nickname === nickname);
 
@@ -63,5 +71,7 @@ router.post('/logout', (req, res) => {
         return res.send("로그아웃 성공!")
     })
 });
+
+//
 
 module.exports = router;

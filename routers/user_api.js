@@ -95,7 +95,47 @@ router.get('/info', async (req, res) => {
         console.error(err);
         res.status(500).send({err: 'Database error'});
     }
+});
 
+// 회원 정보 수정
+router.patch('/update', async (req, res) => {
+
+    const user_id = req.session.user?.id;
+    console.log(user_id);
+    const { nickname, email, age } = req.body;
+
+    try{
+        // 수정할 필드만 동적으로 구성
+        const fields = [];
+        const values = [];
+        
+        if(nickname) {
+            fields.push('nickname = ?');
+            values.push(nickname);
+        }
+        if(email) {
+            fields.push('email = ?');
+            values.push(email);
+        }
+        if(age) {
+            fields.push('age = ?');
+            values.push(age);
+        }
+
+        if (fields.length === 0) {
+            return res.status(400).send({ err: '수정할 정보가 없습니다.' });
+        }
+
+        values.push(user_id);
+
+        const query = `UPDATE users SET ${fields.join(', ')} WHERE id = ?`;
+        await db.query(query, values);
+        res.send('회원 정보가 수정되었습니다!');
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({err: 'Database error'});
+    }
 });
 
 module.exports = router;

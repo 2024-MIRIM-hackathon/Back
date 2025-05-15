@@ -5,11 +5,16 @@ var db = require('../config/db');
 const router = express.Router();
 
 // 오늘 배운 단어 퀴즈
-router.get('/todayquize', async (req, res) => {
+router.get('/today', async (req, res) => {
+    const user_id = req.session.user?.id;
+
     const [words] = await db.query(
-        'SELECT w.word, w.meaning, w.example, ul.thing FROM user_learned ul JOIN words w ON ul.thing = w.word WHERE ul.learn_date = CURDATE()');
+        'SELECT w.word, w.meaning, w.example, ul.thing FROM user_learned ul JOIN words w ON ul.thing = w.word WHERE ul.learn_date = CURDATE() AND ul.user_id = ?', [user_id]);
         console.log("DB 데이터 : ", words);     // 데이터 구조 확인
 
+    if (!words || words.length === 0) {
+        return res.status(404).json({ error: "오늘 학습한 단어가 없습니다." });
+    }
     const randomIndex = Math.floor(Math.random() * words.length);
     const word = words[randomIndex];
     const question = words[randomIndex].meaning;
@@ -47,11 +52,17 @@ router.get('/todayquize', async (req, res) => {
 });
 
 // 배웠던 단어 퀴즈
-router.get('/randomquize', async (req, res) => {
+router.get('/random', async (req, res) => {
+    const user_id = req.session.user?.id;
+    console.log(user_id);
+
     const [words] = await db.query(
-        'SELECT w.id, w.word, w.meaning, w.example, ul.thing FROM words w, user_learned ul WHERE (ul.thing = w.word)');
+        'SELECT w.word, w.meaning, w.example, ul.thing FROM user_learned ul JOIN words w ON ul.thing = w.word AND ul.user_id = ?', [user_id]);
     console.log("DB 데이터 : ", words);     // 데이터 구조 확인
 
+    if (!words || words.length === 0) {
+        return res.status(404).json({ error: "학습한 단어가 없습니다." });
+    }
     const randomIndex = Math.floor(Math.random() * words.length);
     const word = words[randomIndex];        // 정답 단어
     const question = words[randomIndex].meaning;

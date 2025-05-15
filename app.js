@@ -5,7 +5,7 @@ const app = express();
 
 // 라우터 설정
 const WordDictionary = require("./routers/word_dictionary_api");
-const Quize = require("./routers/quiz_api");
+const Quiz = require("./routers/quiz_api");
 const User = require("./routers/user_api");
 
 app.set("port", process.env.PORT || 5000);
@@ -16,10 +16,11 @@ app.use(
 );
 app.use(
   session({
-    secret: process.env.COOKIE_SECRE,
+    secret: process.env.COOKIE_SECRET,
     resave: false,
     saveUninitialized: true,
     cookie: {
+      origin: 'http://localhost:3000',
       secure: false,
     },
   })
@@ -29,7 +30,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // 라우터 불러오기
 app.use("/api/worddictionary", WordDictionary);
-app.use("/api/qize", Quize);
+app.use("/api/quiz", Quiz);
 app.use("/api/user", User);
 
 // 기본 라우트 설정

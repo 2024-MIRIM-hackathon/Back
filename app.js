@@ -10,6 +10,7 @@ const dailyLearn = require("./routers/daily_learn_api");
 const dateRouter = require("./routers/calendar_api");
 const learned = require("./routers/learned_api");
 const wordRouter = require("./routers/word");
+const MyPage = require("./routers/mypage_api");
 
 app.set("port", process.env.PORT || 5000);
 app.use(
@@ -37,6 +38,7 @@ app.use("/api/daily", dailyLearn);
 app.use("/api/date", dateRouter);
 app.use("/api/learned", learned);
 app.use("/api", wordRouter);
+app.use("/api/mypage", MyPage);
 
 // 기본 라우트 설정
 app.get("/", (req, res) => {

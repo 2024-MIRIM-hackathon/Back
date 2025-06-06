@@ -11,10 +11,10 @@ router.get("/today", async (req, res) => {
   // console.log(req.session);
 
   const [words] = await db.query(
-    "SELECT w.word, w.meaning, w.example, ul.thing FROM user_learned ul JOIN words w ON ul.thing = w.word WHERE ul.learn_date = CURDATE() AND ul.user_id = ?",
-    [user_id]
+    `SELECT w.word, w.meaning, w.example
+    FROM todo t JOIN words w ON w.id BETWEEN t.word_start_index AND t.word_start_index+3
+    WHERE t.todo_date = CURDATE() AND t.user_id = ?`, [user_id]
   );
-  console.log("DB 데이터 : ", words); // 데이터 구조 확인
 
   if (!words || words.length === 0) {
     return res.status(404).json({ error: "오늘 학습한 단어가 없습니다." });
@@ -60,10 +60,10 @@ router.get("/random", async (req, res) => {
   console.log(user_id);
 
   const [words] = await db.query(
-    "SELECT w.word, w.meaning, w.example, ul.thing FROM user_learned ul JOIN words w ON ul.thing = w.word AND ul.user_id = ?",
-    [user_id]
+    `SELECT w.word, w.meaning, w.example
+    FROM todo t JOIN words w ON w.id BETWEEN t.word_start_index AND t.word_start_index+3
+    WHERE t.user_id = ?`, [user_id]
   );
-  console.log("DB 데이터 : ", words); // 데이터 구조 확인
 
   if (!words || words.length === 0) {
     return res.status(404).json({ error: "학습한 단어가 없습니다." });

@@ -48,6 +48,7 @@ router.get("/today", async (req, res) => {
   const shuffledOptions = shuffle(options); // 섞인 선택지
 
   res.json({
+    word_id : randomIndex+1,
     question: question, // 문제
     options: shuffledOptions, //선택지
     correct_answer: word.word, // 정답
@@ -97,6 +98,7 @@ router.get("/random", async (req, res) => {
   const shuffledOptions = shuffle(options); // 섞인 선택지
 
   res.json({
+    word_id : randomIndex+1,
     question: question, // 문제
     options: shuffledOptions, //선택지
     correct_answer: word.word, // 정답

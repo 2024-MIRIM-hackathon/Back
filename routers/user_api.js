@@ -1,6 +1,7 @@
 /* 사용자자 api */
 const express = require('express');
 const db = require('../config/db');
+const { SELECT } = require('sequelize/lib/query-types');
 
 const router = express.Router();
 
@@ -147,6 +148,31 @@ router.delete('/delete', async (req, res) => {
         await db.query('DELETE FROM users WHERE id = ?', [user_id]);
         res.send('회원 탈퇴 되었습니다!');
         req.session.destroy;
+
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({err: 'Database error'});
+    }
+});
+
+// 사용자 level 정보
+router.get('/level', async (req, res) => {
+    const user_id = req.session.user?.id;
+
+    try {
+        const [user_level] = await db.query('SELECT level FROM users WHERE id = ?', [user_id]);
+        const [learned_num] = await db.query('SELECT COUNT(thing) AS learned_num FROM user_learned WHERE user_id = ?', [user_id]);
+
+        const level = user_level[0].level;
+        const learned = learned_num[0].learned_num;
+        const need_num = (level*10) + 10;
+
+        res.send({
+            "now_level" : level,
+            "next_level" : level + 1,
+            "need_study_num" : need_num,
+            "studied_num" : learned - (level*10)
+        });
 
     } catch (err) {
         console.error(err);

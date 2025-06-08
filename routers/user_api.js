@@ -47,7 +47,7 @@ router.post('/login', async (req, res) => {
         if (user) {
             if (password === user.password) {
                 req.session.user = {id : user.id};
-                return res.send("로그인 성공!");
+                return res.status(200).json({ user_id: user.id });
             } else {
                  return res.status(400).send("password를 잘못 입력하셨습니다.");
             }  

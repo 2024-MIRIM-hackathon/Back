@@ -143,4 +143,22 @@ router.post("/wong_word", async (req, res) => {
 
 });
 
+// 사용자들이 틀린 단어
+router.get("/peoples_wong_word", async (req, res) => {
+
+  try {
+    const wong_word = await db.query(
+      `SELECT DISTINCT words.*
+      FROM wong_words JOIN words ON wong_words.word_id = words.id;`
+    )
+    const wong_word_list = wong_word[0]
+    res.status(200).json(wong_word_list);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({err: 'Database error'});
+  }
+
+});
+
 module.exports = router;

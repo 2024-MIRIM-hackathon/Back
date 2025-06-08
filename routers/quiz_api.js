@@ -124,4 +124,23 @@ router.post("/complete", async (req, res) => {
   }
 });
 
+// 틀린 단어 저장
+router.post("/wong_word", async (req, res) => {
+
+  const { word_id, wong_word } = req.body;
+  const user_id = req.session.user?.id;
+
+  try {
+    await db.query(
+      `INSERT INTO wong_words (user_id, word_id, word)
+      VALUES(?, ?, ?)`, [user_id, word_id, wong_word]
+    )
+    res.status(200).json("틀린 단어를 저장했습니다!");
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({err: 'Database error'});
+  }
+
+});
+
 module.exports = router;

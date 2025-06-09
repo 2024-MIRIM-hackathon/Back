@@ -57,8 +57,8 @@ router.get('/record', async (req, res) => {
             'SELECT COUNT(thing) AS text_num FROM user_learned WHERE t_type = "text" AND user_id = ?', [user_id]
         );
 
-        const [wong_word_num] = await db.query(
-            'SELECT COUNT(*) AS wong_word_num FROM wong_words WHERE user_id = ?', [user_id]
+        const [wrong_word_num] = await db.query(
+            'SELECT COUNT(*) AS wrong_word_num FROM wrong_words WHERE user_id = ?', [user_id]
         );
 
         const [right_word_num] = await db.query(
@@ -66,19 +66,19 @@ router.get('/record', async (req, res) => {
         );
 
         
-        if (!learned_word_num || !learned_text_num || !wong_word_num) {
+        if (!learned_word_num || !learned_text_num || !wrong_word_num) {
             return res.status(404).send({ err: '정보를 가져올 수 없습니댜.' });
         }
 
         const word_num = learned_word_num[0].word_num;
         const text_num = learned_text_num[0].text_num;
-        const wong_num = wong_word_num[0].wong_word_num;
+        const wrong_num = wrong_word_num[0].wrong_word_num;
         const right_num = right_word_num[0].right_word_num;
 
         res.send({
             learned_word_num : word_num,
             learned_text_num: text_num,
-            wong_word_num : wong_num,
+            wrong_word_num : wrong_num,
             right_word_num: right_num
         });
 

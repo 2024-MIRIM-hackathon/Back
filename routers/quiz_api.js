@@ -133,16 +133,59 @@ router.post("/wong_word", async (req, res) => {
   const user_id = req.session.user?.id;
 
   try {
-    await db.query(
-      `INSERT INTO wong_words (user_id, word_id, word)
-      VALUES(?, ?, ?)`, [user_id, word_id, wong_word]
-    )
+    const [wong_words] = await db.query(`SELECT word_id FROM wong_words WHERE user_id = ?`, [user_id]);
+    const [right_words] = await db.query(`SELECT word_id FROM right_words WHERE user_id = ?`, [user_id]);
+
+    // wong_words에 저장되어있지 않은 경우에만 저장
+    if (wong_words.filter(item => item.word_id === word_id).length === 0){
+      await db.query(
+        `INSERT INTO wong_words (user_id, word_id, word)
+        VALUES(?, ?, ?)`, [user_id, word_id, wong_word]
+      )
+    }
+
+    // right_words에 저장되어있는 경우 삭제
+    if (right_words.filter(item => item.word_id === word_id).length > 0){
+      await db.query(`DELETE FROM right_words WHERE user_id = ? AND word_id = ?`, [user_id, word_id]);
+    }
+
     res.status(200).json("틀린 단어를 저장했습니다!");
+
   } catch (err) {
     console.error(err);
     res.status(500).send({err: 'Database error'});
   }
+});
 
+// 맞은 단어 저장
+router.post("/right_word", async (req, res) => {
+
+  const { word_id, right_word } = req.body;
+  const user_id = req.session.user?.id;
+
+  try {
+    const [wong_words] = await db.query(`SELECT word_id FROM wong_words WHERE user_id = ?`, [user_id]);
+    const [right_words] = await db.query(`SELECT word_id FROM right_words WHERE user_id = ?`, [user_id]);
+
+    // right_words에 저장되어있지 않은 경우에만 저장
+    if (right_words.filter(item => item.word_id === word_id).length === 0){
+      await db.query(
+        `INSERT INTO right_words (user_id, word_id, word)
+        VALUES(?, ?, ?)`, [user_id, word_id, right_word]
+      )
+    } 
+
+    // wong_words에 저장되어있는 단어인 경우 wong_words에서 삭제
+    if (wong_words.filter(item => item.word_id === word_id).length > 0){
+      await db.query(`DELETE FROM wong_words WHERE user_id = ? AND word_id = ?`, [user_id, word_id]);
+    }
+
+    res.status(200).json("맞은 단어를 저장했습니다!");
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send({err: 'Database error'});
+  }
 });
 
 // 사용자들이 틀린 단어
@@ -160,7 +203,6 @@ router.get("/peoples_wong_word", async (req, res) => {
     console.error(err);
     res.status(500).send({err: 'Database error'});
   }
-
 });
 
 module.exports = router;

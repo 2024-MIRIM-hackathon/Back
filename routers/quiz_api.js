@@ -127,20 +127,20 @@ router.post("/complete", async (req, res) => {
 });
 
 // 틀린 단어 저장
-router.post("/wong_word", async (req, res) => {
+router.post("/wrong_word", async (req, res) => {
 
-  const { word_id, wong_word } = req.body;
+  const { word_id, wrong_word } = req.body;
   const user_id = req.session.user?.id;
 
   try {
-    const [wong_words] = await db.query(`SELECT word_id FROM wong_words WHERE user_id = ?`, [user_id]);
+    const [wrong_words] = await db.query(`SELECT word_id FROM wrong_words WHERE user_id = ?`, [user_id]);
     const [right_words] = await db.query(`SELECT word_id FROM right_words WHERE user_id = ?`, [user_id]);
 
-    // wong_words에 저장되어있지 않은 경우에만 저장
-    if (wong_words.filter(item => item.word_id === word_id).length === 0){
+    // wrong_words에 저장되어있지 않은 경우에만 저장
+    if (wrong_words.filter(item => item.word_id === word_id).length === 0){
       await db.query(
-        `INSERT INTO wong_words (user_id, word_id, word)
-        VALUES(?, ?, ?)`, [user_id, word_id, wong_word]
+        `INSERT INTO wrong_words (user_id, word_id, word)
+        VALUES(?, ?, ?)`, [user_id, word_id, wrong_word]
       )
     }
 
@@ -164,7 +164,7 @@ router.post("/right_word", async (req, res) => {
   const user_id = req.session.user?.id;
 
   try {
-    const [wong_words] = await db.query(`SELECT word_id FROM wong_words WHERE user_id = ?`, [user_id]);
+    const [wrong_words] = await db.query(`SELECT word_id FROM wrong_words WHERE user_id = ?`, [user_id]);
     const [right_words] = await db.query(`SELECT word_id FROM right_words WHERE user_id = ?`, [user_id]);
 
     // right_words에 저장되어있지 않은 경우에만 저장
@@ -175,9 +175,9 @@ router.post("/right_word", async (req, res) => {
       )
     } 
 
-    // wong_words에 저장되어있는 단어인 경우 wong_words에서 삭제
-    if (wong_words.filter(item => item.word_id === word_id).length > 0){
-      await db.query(`DELETE FROM wong_words WHERE user_id = ? AND word_id = ?`, [user_id, word_id]);
+    // wrong_words에 저장되어있는 단어인 경우 wrong_words에서 삭제
+    if (wrong_words.filter(item => item.word_id === word_id).length > 0){
+      await db.query(`DELETE FROM wrong_words WHERE user_id = ? AND word_id = ?`, [user_id, word_id]);
     }
 
     res.status(200).json("맞은 단어를 저장했습니다!");
@@ -189,15 +189,15 @@ router.post("/right_word", async (req, res) => {
 });
 
 // 사용자들이 틀린 단어
-router.get("/peoples_wong_word", async (req, res) => {
+router.get("/peoples_wrong_word", async (req, res) => {
 
   try {
-    const wong_word = await db.query(
+    const wrong_word = await db.query(
       `SELECT DISTINCT words.*
-      FROM wong_words JOIN words ON wong_words.word_id = words.id;`
+      FROM wrong_words JOIN words ON wrong_words.word_id = words.id;`
     )
-    const wong_word_list = wong_word[0]
-    res.status(200).json(wong_word_list);
+    const wrong_word_list = wrong_word[0]
+    res.status(200).json(wrong_word_list);
 
   } catch (err) {
     console.error(err);

@@ -61,6 +61,10 @@ router.get('/record', async (req, res) => {
             'SELECT COUNT(*) AS wong_word_num FROM wong_words WHERE user_id = ?', [user_id]
         );
 
+        const [right_word_num] = await db.query(
+            'SELECT COUNT(*) AS right_word_num FROM right_words WHERE user_id = ?', [user_id]
+        );
+
         
         if (!learned_word_num || !learned_text_num || !wong_word_num) {
             return res.status(404).send({ err: '정보를 가져올 수 없습니댜.' });
@@ -69,8 +73,7 @@ router.get('/record', async (req, res) => {
         const word_num = learned_word_num[0].word_num;
         const text_num = learned_text_num[0].text_num;
         const wong_num = wong_word_num[0].wong_word_num;
-
-        const right_num = parseInt(word_num) - parseInt(wong_num);
+        const right_num = right_word_num[0].right_word_num;
 
         res.send({
             learned_word_num : word_num,

@@ -13,7 +13,8 @@ router.get("/today", async (req, res) => {
   const [words] = await db.query(
     `SELECT w.word, w.meaning, w.example
     FROM todo t JOIN words w ON w.id BETWEEN t.word_start_index AND t.word_start_index+3
-    WHERE t.todo_date = CURDATE() AND t.user_id = ?`, [user_id]
+    WHERE t.todo_date = CURDATE() AND t.user_id = ?`,
+    [user_id]
   );
 
   if (!words || words.length === 0) {
@@ -48,7 +49,7 @@ router.get("/today", async (req, res) => {
   const shuffledOptions = shuffle(options); // 섞인 선택지
 
   res.json({
-    word_id : randomIndex+1,
+    word_id: randomIndex + 1,
     question: question, // 문제
     options: shuffledOptions, //선택지
     correct_answer: word.word, // 정답
@@ -63,7 +64,8 @@ router.get("/random", async (req, res) => {
   const [words] = await db.query(
     `SELECT w.word, w.meaning, w.example
     FROM todo t JOIN words w ON w.id BETWEEN t.word_start_index AND t.word_start_index+3
-    WHERE t.user_id = ?`, [user_id]
+    WHERE t.user_id = ?`,
+    [user_id]
   );
 
   if (!words || words.length === 0) {
@@ -98,13 +100,14 @@ router.get("/random", async (req, res) => {
   const shuffledOptions = shuffle(options); // 섞인 선택지
 
   res.json({
-    word_id : randomIndex+1,
+    word_id: randomIndex + 1,
     question: question, // 문제
     options: shuffledOptions, //선택지
     correct_answer: word.word, // 정답
   });
 });
 
+// 퀴즈 다 풀었는지
 router.post("/complete", async (req, res) => {
   const user_id = req.session.user?.id;
 
@@ -128,80 +131,94 @@ router.post("/complete", async (req, res) => {
 
 // 틀린 단어 저장
 router.post("/wrong_word", async (req, res) => {
-
   const { word_id, wrong_word } = req.body;
   const user_id = req.session.user?.id;
 
   try {
-    const [wrong_words] = await db.query(`SELECT word_id FROM wrong_words WHERE user_id = ?`, [user_id]);
-    const [right_words] = await db.query(`SELECT word_id FROM right_words WHERE user_id = ?`, [user_id]);
+    const [wrong_words] = await db.query(
+      `SELECT word_id FROM wrong_words WHERE user_id = ?`,
+      [user_id]
+    );
+    const [right_words] = await db.query(
+      `SELECT word_id FROM right_words WHERE user_id = ?`,
+      [user_id]
+    );
 
     // wrong_words에 저장되어있지 않은 경우에만 저장
-    if (wrong_words.filter(item => item.word_id === word_id).length === 0){
+    if (wrong_words.filter((item) => item.word_id === word_id).length === 0) {
       await db.query(
         `INSERT INTO wrong_words (user_id, word_id, word)
-        VALUES(?, ?, ?)`, [user_id, word_id, wrong_word]
-      )
+        VALUES(?, ?, ?)`,
+        [user_id, word_id, wrong_word]
+      );
     }
 
     // right_words에 저장되어있는 경우 삭제
-    if (right_words.filter(item => item.word_id === word_id).length > 0){
-      await db.query(`DELETE FROM right_words WHERE user_id = ? AND word_id = ?`, [user_id, word_id]);
+    if (right_words.filter((item) => item.word_id === word_id).length > 0) {
+      await db.query(
+        `DELETE FROM right_words WHERE user_id = ? AND word_id = ?`,
+        [user_id, word_id]
+      );
     }
 
     res.status(200).json("틀린 단어를 저장했습니다!");
-
   } catch (err) {
     console.error(err);
-    res.status(500).send({err: 'Database error'});
+    res.status(500).send({ err: "Database error" });
   }
 });
 
 // 맞은 단어 저장
 router.post("/right_word", async (req, res) => {
-
   const { word_id, right_word } = req.body;
   const user_id = req.session.user?.id;
 
   try {
-    const [wrong_words] = await db.query(`SELECT word_id FROM wrong_words WHERE user_id = ?`, [user_id]);
-    const [right_words] = await db.query(`SELECT word_id FROM right_words WHERE user_id = ?`, [user_id]);
+    const [wrong_words] = await db.query(
+      `SELECT word_id FROM wrong_words WHERE user_id = ?`,
+      [user_id]
+    );
+    const [right_words] = await db.query(
+      `SELECT word_id FROM right_words WHERE user_id = ?`,
+      [user_id]
+    );
 
     // right_words에 저장되어있지 않은 경우에만 저장
-    if (right_words.filter(item => item.word_id === word_id).length === 0){
+    if (right_words.filter((item) => item.word_id === word_id).length === 0) {
       await db.query(
         `INSERT INTO right_words (user_id, word_id, word)
-        VALUES(?, ?, ?)`, [user_id, word_id, right_word]
-      )
-    } 
+        VALUES(?, ?, ?)`,
+        [user_id, word_id, right_word]
+      );
+    }
 
     // wrong_words에 저장되어있는 단어인 경우 wrong_words에서 삭제
-    if (wrong_words.filter(item => item.word_id === word_id).length > 0){
-      await db.query(`DELETE FROM wrong_words WHERE user_id = ? AND word_id = ?`, [user_id, word_id]);
+    if (wrong_words.filter((item) => item.word_id === word_id).length > 0) {
+      await db.query(
+        `DELETE FROM wrong_words WHERE user_id = ? AND word_id = ?`,
+        [user_id, word_id]
+      );
     }
 
     res.status(200).json("맞은 단어를 저장했습니다!");
-
   } catch (err) {
     console.error(err);
-    res.status(500).send({err: 'Database error'});
+    res.status(500).send({ err: "Database error" });
   }
 });
 
 // 사용자들이 틀린 단어
 router.get("/peoples_wrong_word", async (req, res) => {
-
   try {
     const wrong_word = await db.query(
       `SELECT DISTINCT words.*
       FROM wrong_words JOIN words ON wrong_words.word_id = words.id;`
-    )
-    const wrong_word_list = wrong_word[0]
+    );
+    const wrong_word_list = wrong_word[0];
     res.status(200).json(wrong_word_list);
-
   } catch (err) {
     console.error(err);
-    res.status(500).send({err: 'Database error'});
+    res.status(500).send({ err: "Database error" });
   }
 });
 

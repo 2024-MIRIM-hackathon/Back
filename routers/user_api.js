@@ -165,12 +165,14 @@ router.get('/level', async (req, res) => {
 
         const level = user_level[0].level;
         const learned = learned_num[0].learned_num;
-        const need_num = (level*10) + 10;
+        const need_num = (level*10) + 10;  
+
+        if(learned == need_num) level++;
 
         res.send({
             "now_level" : level,
             "next_level" : level + 1,
-            "need_study_num" : need_num,
+            "need_study_num" : need_num - learned,
             "studied_num" : learned
         });
 

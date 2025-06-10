@@ -171,7 +171,7 @@ router.get('/level', async (req, res) => {
             "now_level" : level,
             "next_level" : level + 1,
             "need_study_num" : need_num,
-            "studied_num" : learned - (level*10)
+            "studied_num" : learned
         });
 
     } catch (err) {

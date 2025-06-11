@@ -5,9 +5,9 @@ const db = require('../config/db');
 const router = express.Router();
 
 // 사용자 정보 조회 : 이름, 나이, 이메일, 가입일
-router.get('/info', async (req, res) => {
+router.get('/info/:user_id', async (req, res) => {
 
-    const user_id = req.session.user?.id;
+    const { user_id } = req.params;
 
     try {
         const [user] = await db.query(
@@ -41,9 +41,9 @@ router.get('/info', async (req, res) => {
 });
 
 // 사용자 학습 현황
-router.get('/record', async (req, res) => {
+router.get('/record/:user_id', async (req, res) => {
     try {
-        const user_id = req.session.user?.id;
+        const { user_id } = req.params;
 
         if (!user_id) {
             return res.status(404).send({ err: '사용자를 찾을 수 없습니다.' });

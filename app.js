@@ -15,6 +15,7 @@ const MyPage = require("./routers/mypage_api");
 app.set("port", process.env.PORT || 5000);
 app.use(
   cors({
+    origin: process.env.ORIGIN,
     credentials: true,
   })
 );

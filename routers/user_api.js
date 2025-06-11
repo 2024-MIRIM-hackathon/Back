@@ -74,10 +74,9 @@ router.post('/logout', (req, res) => {
 });
 
 // 회원 정보 조회
-router.get('/info', async (req, res) => {
+router.get('/info/:user_id', async (req, res) => {
 
-    const user_id = req.session.user?.id;
-    console.log(user_id);
+    const { user_id } = req.params;
 
     try {
         const [user] = await db.query(
@@ -99,10 +98,9 @@ router.get('/info', async (req, res) => {
 });
 
 // 회원 정보 수정
-router.patch('/update', async (req, res) => {
+router.patch('/update/:user_id', async (req, res) => {
 
-    const user_id = req.session.user?.id;
-    console.log(user_id);
+    const { user_id } = req.params;
     const { nickname, email, age } = req.body;
 
     try{
@@ -140,9 +138,9 @@ router.patch('/update', async (req, res) => {
 });
 
 // 회원 탈퇴
-router.delete('/delete', async (req, res) => {
-    const user_id = req.session.user?.id;
-    console.log(user_id);
+router.delete('/delete/:user_id', async (req, res) => {
+
+    const { user_id } = req.params;
 
     try{
         await db.query('DELETE FROM users WHERE id = ?', [user_id]);
@@ -156,8 +154,9 @@ router.delete('/delete', async (req, res) => {
 });
 
 // 사용자 level 정보
-router.get('/level', async (req, res) => {
-    const user_id = req.session.user?.id;
+router.get('/level/:user_id', async (req, res) => {
+
+    const { user_id } = req.params;
 
     try {
         const [user_level] = await db.query('SELECT level FROM users WHERE id = ?', [user_id]);

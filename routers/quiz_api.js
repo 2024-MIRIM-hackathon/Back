@@ -149,6 +149,55 @@ router.post("/complete/:user_id", async (req, res) => {
   }
 });
 
+router.post("/randomComplet", async (req, res) => {
+  const user_id = req.session.user?.id;
+
+  if (!user_id) {
+    return res.status(401).json({ error: "로그인이 필요합니다." });
+  }
+
+  try {
+    await db.query(
+      `INSERT INTO randomstatus (user_id, date, random_learn)
+      VALUES (?, CURDATE(), 1)
+      ON DUPLICATE KEY UPDATE random_learn = 1`,
+      [user_id]
+    );
+    res.json({ message: "퀴즈 완료 저장됨" });
+  } catch (err) {
+    console.error("퀴즈 완료 저장 오류:", err);
+    res.status(500).json({ error: "퀴즈 완료 저장 실패" });
+  }
+});
+
+router.get("/random-status", async (req, res) => {
+  const { user_id } = req.session.user?.id;
+  const { date } = req.query;
+
+  if (!user_id || !date) {
+    return res.status(400).json({ error: "user_id와 date는 필수입니다." });
+  }
+
+  try {
+    const [rows] = await db.query(
+      `SELECT quiz_learn FROM learning_status WHERE user_id = ? AND date = ?`,
+      [user_id, date]
+    );
+    let quiz_done = 1;
+    if (
+      !quizResult ||
+      quizResult.length === 0 ||
+      quizResult[0].quiz_learn == null
+    ) {
+      quiz_done = 0;
+    }
+    res.json({ quiz_done });
+  } catch (error) {
+    console.error("퀴즈 상태 조회 실패:", error);
+    res.status(500).json({ error: "서버 오류로 상태를 조회할 수 없습니다." });
+  }
+});
+
 // 틀린 단어 저장
 router.post("/wrong_word/:user_id", async (req, res) => {
 

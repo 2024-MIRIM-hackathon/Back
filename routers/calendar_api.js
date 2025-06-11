@@ -65,7 +65,15 @@ router.get("/", async (req, res) => {
       `SELECT quiz_learn FROM learning_status WHERE user_id = ? AND date = ?`,
       [user_id, date]
     );
-    const quiz_done = quizResult[0].quiz_learn === 1 ? 1 : 0;
+    let quiz_done = 1;
+    if (
+      !quizResult ||
+      quizResult.length === 0 ||
+      quizResult[0].quiz_learn == null
+    ) {
+      quiz_done = 0;
+    }
+    // const quiz_done = quizResult[0].quiz_learn === 1 ? 1 : 0;
 
     // 응답
     res.json({
